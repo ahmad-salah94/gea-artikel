@@ -1,0 +1,65 @@
+var nfyCommunityUser = {   "isLoggedIn" : function() { return true; },
+   "username" : function() { return "ahmad.salah@t-online.de"; },
+   "userid" : function() { return 143625; },
+   "clientId" : function() { return 6486118575; },
+   "paymentViews" : function() { return []; }
+};
+			var nfyEncodedTargetUri = encodeURIComponent(encodeURIComponent(document.location.pathname+document.location.search));
+			if ( typeof nfyDomain != "undefined" && nfyDomain.search(window.location.host) == -1 )
+			{
+				nfyEncodedTargetUri = "";
+			}
+			var nfyLoginLink = "https://mein.gea.de/index/login.html?clientid=6486118575&nc=1&clienttarget=" + nfyEncodedTargetUri;
+			var nfyLoginLinkAction = "https://mein.gea.de/index/login.html?clientid=6486118575&nc=1&clienttarget=" + nfyEncodedTargetUri;
+			var nfySsoStatusUri = "https://mein.gea.de/REST/community/status/json";
+		
+		// jQuery Ready
+		;jQuery(document).ready(function($){
+			
+			var redirectUri = nfyLoginLink.match(/redirect_uri=([^&]+)/);
+			if ( redirectUri )
+			{
+				var newRedirectUri = redirectUri[0] + encodeURIComponent("?target=")+nfyEncodedTargetUri;
+				nfyLoginLink = nfyLoginLink.replace(redirectUri[0], newRedirectUri);
+			}
+			if ( typeof nfycDisableRedirect === "undefined" )
+			{
+				jQuery(".login_redirect_link").click(function(e){
+					e.preventDefault();
+					window.location.href = nfyLoginLink;
+				});
+			}
+			
+				jQuery("#nfy-layer-content-user-placeholder").append('<div id="container-login">    <span>Mein Profil</span><div class="nfyc-webuser" id="nfy-webuser-placeholder"></div>                <a class="nfy-btn" href="https://mein.gea.de/login.html">Profil bearbeiten</a><a class="nfy-btn nfy-btn-ghost" href="https://mein.gea.de/REST/oauth/logout/6486118575" title="abmelden">Logout</a></div>');
+			
+				jQuery("#nfy-webuser-placeholder").text("ahmad.salah@t-online.de");
+			
+				if ( jQuery(".nfy-hide-logged").length > 0)
+				{
+					jQuery(".nfy-hide-logged").hide();
+				}
+			
+				jQuery(".my_logout").each(function(){
+					var loginHref = jQuery(this).attr("href")+"?redirect_uri="+encodeURIComponent(document.location.href);
+					jQuery(this).attr("href", loginHref);
+				});
+			
+				var pmCheckKey = "nfy-last-pm-check";
+			    var lastPmCheck = window.localStorage.getItem(pmCheckKey) | 0 ;
+			
+				if ( lastPmCheck <= ((Math.round(Date.now() / 1000) | 0)-3600) )
+				{
+					jQuery.ajax({
+					    url: "https://mein.gea.de/REST/community/status/refresh",
+					    type: "GET",
+					    dataType: 'json',
+					    xhrFields: {
+					         withCredentials: true
+					    }
+					});
+					window.localStorage.setItem(pmCheckKey, Math.round(Date.now() / 1000) | 0);
+				}
+			
+			jQuery(".nfy-login-layer form.nfy-login:first, form.nfy-flex-form.nfy-login").attr("action", nfyLoginLinkAction);	
+		
+		});nfyCommunityUser.showLogin = function(){ jQuery(".nfy-myprofile:first").trigger("click");jQuery("html, body").animate({ scrollTop: 0 }, "fast"); return false; };nfyCommunityUser.getPaymentTypes = function(){ return [2];};nfyCommunityUser.getAdvertUserInformation = function(){ return {"tmpabos":"all 20231114"};};
